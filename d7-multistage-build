@@ -1,0 +1,33 @@
+Multi staged builds
+-----------------------------
+In CI/CD we build applications and for building applications if we want to use docker containers 
+then this multistage buildconcept will be handy
+
+Let me give a simple example of a java application
+
+git clone https://github.com/wakaleo/game-of-life
+# java 8 installed and maven install
+cd game-of-life
+mvn package
+
+In Traditional ways 
+- Now after the Package is created, Ensure you have
+- Dockerfile which creates the image
+- Create the image and push the image to docker registry
+- When you want to deploy application the pull from registry
+
+=======================================================================================
+
+Multistage build
+-----------------------
+Build the package as part of your docker image build
+Create a Dockerfile as shown
+
+
+FROM maven:3-openjdk-8 as builder
+RUN git clone https://github.com/wakaleo/game-of-life.git
+RUN cd game-of-life && mvn package
+
+FROM tomcat:8
+COPY --from=builder /game-of-life/gameoflifeweb/target/gameoflife.war  /usr/local/tomcat/webapps/gameoflife.war
+EXPOSE 8080
